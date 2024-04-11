@@ -1,6 +1,7 @@
 package com.blog.api.services.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -8,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.blog.api.entity.Roles;
 import com.blog.api.entity.User;
 import com.blog.api.exceptions.ResourceNotFoundException;
 import com.blog.api.payloads.UserDto;
+//import com.blog.api.repositories.RolesRepo;
 import com.blog.api.repositories.UserRepo;
 import com.blog.api.services.UserService;
 import com.blog.api.utils.CurrentDateTime;
@@ -20,6 +23,10 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserRepo userRepo;
+	
+//	@Autowired
+//	private RolesRepo rolesRepo;
+	
 	@Autowired
 	private CurrentDateTime currentDateTime;
 	
@@ -32,6 +39,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto createUser(UserDto userDto) {
 		User user = userDtoToUser(userDto);
+//		System.out.println(userDto);
+//		userDto.getRoles().iterator(this.modelMapper.map(user, Role.));
 		user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 		user.setCreationTime(currentDateTime.getDateTime());
 		User savedUser = this.userRepo.save(user);
@@ -41,11 +50,12 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto updateUser(UserDto userDto, Integer userId) {
 		User user = this.userRepo.findById(userId).orElseThrow(()->new ResourceNotFoundException("user", "id", userId)); 
-		
+		Set<Roles> newRoles = userDto.getRoles().stream().map(role->this.modelMapper.map(role, Roles.class)).collect(Collectors.toSet());
 		user.setName(userDto.getName());
 		user.setEmail(userDto.getEmail());
 		user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 		user.setAbout(userDto.getAbout());
+		user.setRoles(newRoles);
 		user.setEditionTime(currentDateTime.getDateTime());
 		User updatedUser = this.userRepo.save(user);
 		

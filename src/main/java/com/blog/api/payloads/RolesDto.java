@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleDto {
+public class RolesDto {
 
 	private int id;
 	
-	private String name;
+	private String roleName;
 	
 	
 }

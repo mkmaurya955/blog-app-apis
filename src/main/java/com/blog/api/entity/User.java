@@ -56,8 +56,8 @@ public class User implements UserDetails {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Comments> comments = new HashSet<>();
 
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private Set<Role> roles = new HashSet<>();
+	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+	private Set<Roles> roles = new HashSet<>();
 
 	@Column(name = "created_by")
 	private String createdBy;
@@ -79,7 +79,7 @@ public class User implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		List<SimpleGrantedAuthority> grantedAuthorities = this.roles.stream().map((role) -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+		List<SimpleGrantedAuthority> grantedAuthorities = this.roles.stream().map((role) -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
 		return grantedAuthorities;
 	}
 

@@ -5,9 +5,11 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.blog.api.entity.Categories;
+import com.blog.api.entity.User;
 import com.blog.api.exceptions.ResourceNotFoundException;
 import com.blog.api.payloads.CategoriesDto;
 import com.blog.api.repositories.CategoriesRepo;
@@ -26,6 +28,7 @@ public class CategoriesServiceImpl implements CategoriesServices {
 	@Override
 	public CategoriesDto createCategory(CategoriesDto categoryDto) {
 		Categories category = this.modelMapper.map(categoryDto, Categories.class);
+		category.setCreatedBy(Integer.toString(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()));
 		category.setCreationTime(new CurrentDateTime().getDateTime());
 		Categories newCategory = this.categriesRepo.save(category);
 		return this.modelMapper.map(newCategory, CategoriesDto.class);
@@ -37,6 +40,7 @@ public class CategoriesServiceImpl implements CategoriesServices {
 				.orElseThrow(() -> new ResourceNotFoundException("Category", "category Id", categoryId));
 		category.setCategoryName(categoriesDto.getCategoryName());
 		category.setCategoryDescription(categoriesDto.getCategoryDescription());
+		category.setEditedBy(Integer.toString(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()));
 		category.setEditionTime(new CurrentDateTime().getDateTime());
 		Categories updatedCategory = this.categriesRepo.save(category);
 		return this.modelMapper.map(updatedCategory, CategoriesDto.class);

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.blog.api.entity.Categories;
@@ -50,6 +51,7 @@ public class PostServiceImpl implements PostService {
 		post.setImageName("default.png");
 		post.setUser(user);
 		post.setCategory(category);
+		post.setCreatedBy(Integer.toString(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()));
 		post.setCreationTime(new CurrentDateTime().getDateTime());
 		Post savedPost = this.postRepo.save(post);
 		return this.modelMapper.map(savedPost, PostDto.class);
@@ -62,6 +64,7 @@ public class PostServiceImpl implements PostService {
 		post.setTitle(postDto.getTitle());
 		post.setContent(postDto.getContent());
 //		post.setImageName(postDto.getImageName());
+		post.setEditedBy(Integer.toString(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()));
 		post.setEditionTime(new CurrentDateTime().getDateTime());
 		Post updatedPost = this.postRepo.save(post);
 		return this.modelMapper.map(updatedPost, PostDto.class);
