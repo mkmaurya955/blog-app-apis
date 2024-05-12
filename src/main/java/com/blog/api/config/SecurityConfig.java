@@ -20,6 +20,7 @@ import com.blog.api.security.JwtAuthenticationFilter;
 
 //import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+@SuppressWarnings("deprecation")
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
