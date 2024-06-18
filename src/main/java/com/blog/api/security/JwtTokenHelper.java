@@ -1,5 +1,6 @@
 package com.blog.api.security;
 
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,8 @@ import com.blog.api.config.Constants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenHelper {
@@ -38,9 +41,13 @@ public class JwtTokenHelper {
 	}
 
 	// for retrieving any information from token we will need the secret key
-	@SuppressWarnings("deprecation")
 	private Claims getAllClaimsFromToken(String token) {
-		return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+		return Jwts
+				.parserBuilder()
+				.setSigningKey(getSignKey())
+				.build()
+				.parseClaimsJws(token)
+				.getBody();
 	}
 
 	// check if the token has expired
@@ -61,14 +68,18 @@ public class JwtTokenHelper {
 	// 3. According to JWS Compact
 	// Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
 	// compaction of the JWT to a URL-safe string
-	@SuppressWarnings("deprecation")
 	private String doGenerateToken(Map<String, Object> claims, String subject) {
 
 		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-				.signWith(SignatureAlgorithm.HS512, secret).compact();
+				.signWith(getSignKey(),SignatureAlgorithm.HS512).compact();
 	}
 
+	private Key getSignKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+	
 	// validate token
 	public Boolean validateToken(String token, UserDetails userDetails) {
 		final String username = getUsernameFromToken(token);

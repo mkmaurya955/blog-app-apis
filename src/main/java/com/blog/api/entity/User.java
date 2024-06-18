@@ -18,7 +18,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "users")
+@Table(name = "BLOG_USERS")
 @NoArgsConstructor
 @Getter
 @Setter
@@ -50,13 +50,16 @@ public class User implements UserDetails {
 	@Column(name = "about")
 	private String about;
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(targetEntity = Post.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "post_user_fk", referencedColumnName = "id")
 	private List<Post> posts = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(targetEntity = Comments.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "comment_user_fk", referencedColumnName = "id")
 	private Set<Comments> comments = new HashSet<>();
 
-	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+	@OneToMany(targetEntity = Roles.class, cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+	@JoinColumn(name = "role_user_fk", referencedColumnName = "id")
 	private Set<Roles> roles = new HashSet<>();
 
 	@Column(name = "created_by")
@@ -79,8 +82,7 @@ public class User implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		List<SimpleGrantedAuthority> grantedAuthorities = this.roles.stream().map((role) -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
-		return grantedAuthorities;
+		return this.roles.stream().map((role) -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
 	}
 
 	@Override

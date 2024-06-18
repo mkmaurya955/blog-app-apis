@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -37,15 +38,18 @@ public class Post {
 
 	private Date addedDate;
 
-	@ManyToOne
-	private Categories category;
+	@OneToMany(targetEntity = Comments.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "comment_post_fk", referencedColumnName = "id")
+	private Set<Comments> comments = new HashSet<>();
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Set<Comments> comments = new HashSet<>();
-	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "category_id", nullable = false)
+	private Categories category;
+
 	@Column(name = "created_by")
 	private String createdBy;
 

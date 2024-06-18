@@ -33,11 +33,11 @@ public class UserController {
 	
 	
 	//POST - create user
-	@PostMapping("/")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/create")
+//	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
 		UserDto createdUser = this.userService.createUser(userDto);
-		System.out.println();
+//		System.out.println();
 		return new ResponseEntity<UserDto>(createdUser,HttpStatus.CREATED);
 	} 
 	  

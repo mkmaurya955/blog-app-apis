@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -33,7 +34,8 @@ public class Categories {
 	@Column(name = "category_description", length = 500)
 	private String categoryDescription;
 	
-	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL,fetch = FetchType.LAZY )
+	@OneToMany(targetEntity =  Post.class, cascade = CascadeType.ALL,fetch = FetchType.LAZY )
+	@JoinColumn(name = "post_catagory_fk", referencedColumnName = "id")
 	private List<Post> posts = new ArrayList<>();
 	
 	

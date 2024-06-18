@@ -51,7 +51,9 @@ public class PostServiceImpl implements PostService {
 		post.setImageName("default.png");
 		post.setUser(user);
 		post.setCategory(category);
-		post.setCreatedBy(Integer.toString(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()));
+
+		post.setCreatedBy(Integer
+				.toString(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()));
 		post.setCreationTime(new CurrentDateTime().getDateTime());
 		Post savedPost = this.postRepo.save(post);
 		return this.modelMapper.map(savedPost, PostDto.class);
@@ -64,7 +66,8 @@ public class PostServiceImpl implements PostService {
 		post.setTitle(postDto.getTitle());
 		post.setContent(postDto.getContent());
 //		post.setImageName(postDto.getImageName());
-		post.setEditedBy(Integer.toString(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()));
+		post.setEditedBy(Integer
+				.toString(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()));
 		post.setEditionTime(new CurrentDateTime().getDateTime());
 		Post updatedPost = this.postRepo.save(post);
 		return this.modelMapper.map(updatedPost, PostDto.class);
@@ -88,9 +91,9 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public PaginationResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-		Sort sort = sortOrder.equalsIgnoreCase("asc")?Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+		Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 		Pageable p = PageRequest.of(pageNumber, pageSize, sort);
-		
+
 		Page<Post> pagePosts = this.postRepo.findAll(p);
 		List<Post> allPosts = pagePosts.getContent();
 		List<PostDto> postDtos = allPosts.stream().map((post) -> this.modelMapper.map(post, PostDto.class))
@@ -100,16 +103,17 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PaginationResponse getPostByCategory(int categoryId,Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-		Sort sort = sortOrder.equalsIgnoreCase("asc")?Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+	public PaginationResponse getPostByCategory(int categoryId, Integer pageNumber, Integer pageSize, String sortBy,
+			String sortOrder) {
+		Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 		Pageable p = PageRequest.of(pageNumber, pageSize, sort);
-		
+
 		Categories category = this.categoriesRepo.findById(categoryId)
 				.orElseThrow(() -> new ResourceNotFoundException("Category", "category id", categoryId));
-		
+
 		Page<Post> pagesPosts = this.postRepo.findByCategory(category, p);
 		List<Post> allPostsByCategory = pagesPosts.getContent();
-		
+
 		List<PostDto> postDtos = allPostsByCategory.stream().map((post -> this.modelMapper.map(post, PostDto.class)))
 				.collect(Collectors.toList());
 		PaginationResponse paginationResponse = new PaginationResponse(postDtos, pagesPosts);
@@ -117,27 +121,28 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PaginationResponse getPostByUser(int userId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-		Sort sort = sortOrder.equalsIgnoreCase("asc")?Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+	public PaginationResponse getPostByUser(int userId, Integer pageNumber, Integer pageSize, String sortBy,
+			String sortOrder) {
+		Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 		Pageable p = PageRequest.of(pageNumber, pageSize, sort);
-		
+
 		User user = this.userRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User", "user id ", userId));
 		Page<Post> pagesByUser = this.postRepo.findByUser(user, p);
 		List<Post> postsByUser = pagesByUser.getContent();
 		List<PostDto> postDtos = postsByUser.stream().map(post -> this.modelMapper.map(post, PostDto.class))
 				.collect(Collectors.toList());
-		PaginationResponse paginationResponse = new PaginationResponse(postDtos,pagesByUser);
+		PaginationResponse paginationResponse = new PaginationResponse(postDtos, pagesByUser);
 		return paginationResponse;
 	}
 
 	@Override
-	public PaginationResponse searchPosts(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-		Sort sort = sortOrder.equalsIgnoreCase("asc")?Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+	public PaginationResponse searchPosts(String keyword, Integer pageNumber, Integer pageSize, String sortBy,
+			String sortOrder) {
+		Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 		Pageable p = PageRequest.of(pageNumber, pageSize, sort);
-		
-		
-		Page<Post> pagesPosts = this.postRepo.findByTitleContainingIgnoreCase(keyword,p);
+
+		Page<Post> pagesPosts = this.postRepo.findByTitleContainingIgnoreCase(keyword, p);
 		List<Post> posts = pagesPosts.getContent();
 		List<PostDto> postDtos = posts.stream().map(post -> this.modelMapper.map(post, PostDto.class))
 				.collect(Collectors.toList());
